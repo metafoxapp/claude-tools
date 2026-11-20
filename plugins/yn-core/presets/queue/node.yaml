@@ -1,0 +1,18 @@
+# yn-core queue config (node preset). Adjust verify commands to your project.
+base_branch: main
+max_turns: 40
+max_budget_usd: 5
+max_attempts: 2
+groups:
+  app:
+    paths: [src/, app/, lib/]
+    verify: npm test
+  tests:
+    paths: [test/, tests/, __tests__/]
+    verify: npm test
+  lint-config:
+    paths: [package.json, .eslintrc*, tsconfig.json]
+    verify: npm run lint
+  docs:
+    paths: [docs/, README.md]
+    verify: ""

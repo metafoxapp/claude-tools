@@ -1,0 +1,16 @@
+{
+  "description": "yn-core queue: optionally keep Claude working through ready tasks (only when .yn/queue/.autorun exists)",
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/queue-stop.sh\"",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}

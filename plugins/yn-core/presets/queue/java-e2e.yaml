@@ -1,0 +1,19 @@
+# yn-core queue config (java-e2e preset: Maven + Cucumber/TestNG + Selenium).
+# Replace verify with your project's own checks (e.g. a feature-lint wrapper script).
+base_branch: main
+max_turns: 40
+max_budget_usd: 5
+max_attempts: 2
+groups:
+  features:
+    paths: [src/test/resources/features/]
+    verify: mvn -q -DskipTests test-compile
+  steps:
+    paths: [src/test/java/]
+    verify: mvn -q -DskipTests test-compile
+  framework:
+    paths: [src/main/, pom.xml, src/test/resources/]
+    verify: mvn -q -DskipTests test-compile
+  docs:
+    paths: [docs/, README.md]
+    verify: ""

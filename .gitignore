@@ -1,0 +1,4 @@
+.DS_Store
+.yn/queue/*
+!.yn/queue/config.yaml
+.claude/worktrees/

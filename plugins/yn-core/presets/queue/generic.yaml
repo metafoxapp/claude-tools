@@ -1,0 +1,17 @@
+# yn-core queue config (generic preset). Edit freely and commit this file to share
+# groups with your team. State (tasks, logs) stays out of git.
+# A group with an empty `verify` cannot be run headless: set one first.
+base_branch: main       # branch the per-group worktrees start from
+max_turns: 40           # per claude -p run
+max_budget_usd: 5       # per claude -p run
+max_attempts: 2         # retries before a task is moved to failed/
+groups:
+  app:
+    paths: [src/, app/, lib/]
+    verify: ""
+  tests:
+    paths: [tests/, test/]
+    verify: ""
+  docs:
+    paths: [docs/, README.md]
+    verify: ""

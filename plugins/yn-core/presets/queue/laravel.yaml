@@ -1,0 +1,18 @@
+# yn-core queue config (laravel preset). Adjust verify commands to your project.
+base_branch: main
+max_turns: 40
+max_budget_usd: 5
+max_attempts: 2
+groups:
+  backend:
+    paths: [app/, routes/, database/, config/]
+    verify: php artisan test
+  frontend:
+    paths: [resources/, public/]
+    verify: npm run build
+  tests:
+    paths: [tests/]
+    verify: php artisan test
+  docs:
+    paths: [docs/, README.md]
+    verify: ""

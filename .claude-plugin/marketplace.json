@@ -1,0 +1,19 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "yn-tools",
+  "description": "YN Claude Code toolkit. Plugins are grouped by role: yn-core, yn-dev, yn-qc, yn-pm, yn-design, yn-ops.",
+  "owner": {
+    "name": "metafoxapp"
+  },
+  "plugins": [
+    {
+      "name": "yn-core",
+      "displayName": "YN · Core",
+      "description": "Cross-role foundations. queue-*: a local, file-based task queue that triages tasks into groups and implements them (in-session, in parallel worktrees, or headless).",
+      "category": "productivity",
+      "tags": ["yn", "role:core", "queue", "workflow"],
+      "version": "0.1.0",
+      "source": "./plugins/yn-core"
+    }
+  ]
+}

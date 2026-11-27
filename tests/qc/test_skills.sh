@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-# Checks the six yn-qc skills: names, frontmatter, side-effect flags,
+# Checks the seven yn-qc skills: names, frontmatter, side-effect flags,
 # cross references, and that no project-specific data ships in the plugin.
 cd "$(dirname "$0")/../.." || exit 1
 . tests/qc/lib.sh
 
-SKILLS="requirement-review checklist-gen checklist-import ticket-review retest-run testrun-report"
+SKILLS="requirement-review release-review checklist-gen checklist-import ticket-review retest-run testrun-report"
 WRITERS=" checklist-gen checklist-import retest-run "
 
 fm_get() { # <file> <key>
@@ -96,6 +96,15 @@ if [ -f "$rr" ]; then
   assert_contains "$(cat "$rr")" "| Req ID | Epic | Feature | Scenario | Steps | Expected | Type | Priority |" "requirement-review: scenario table matches checklist-gen TCS"
   assert_contains "$(cat "$rr")" 'kind="Conflict"' "requirement-review: Conflict maps to an OQ kind"
   assert_contains "$(cat "$rr")" 'kind="Gap"' "requirement-review: Gap maps to an OQ kind"
+  assert_contains "$(cat "$rr")" "/yn-qc:release-review" "requirement-review: hands release work to release-review"
+fi
+rl="$PLUGIN/skills/release-review/SKILL.md"
+if [ -f "$rl" ]; then
+  case "$(fm_get "$rl" description)" in "Use when"*) pass "release-review: description starts with Use when" ;;
+    *) fail "release-review: description starts with Use when" ;; esac
+  for w in "NO-GO" "GO WITH RISK" "/yn-qc:requirement-review"; do
+    assert_contains "$(cat "$rl")" "$w" "release-review: mentions $w"
+  done
 fi
 
 exit $FAILS

@@ -1,17 +1,18 @@
 ---
 name: requirement-review
-description: Use when the user shares a PRD, spec or user story, or asks for requirement gaps, test scenarios, coverage, regression impact, test data, a permission matrix, a testing estimate or a release go/no-go, as analysis in the chat rather than checklist files or Jira tickets.
-argument-hint: "[task, e.g. analyze requirement | P0 scenarios | release readiness] [document or text]"
+description: Use when the user shares a PRD, spec or user story, or asks for requirement gaps, test scenarios, test coverage, test data or a permission matrix before testing, as analysis in the chat rather than checklist files or Jira tickets.
+argument-hint: "[task, e.g. analyze requirement | P0 scenarios | coverage] [document or text]"
 ---
 # QC requirement review
 
-Manual-testing analysis: read requirements, find what is confirmed and what is not, design the scenarios that matter, judge coverage, regression and release risk. The result is analysis in the chat; other skills turn it into files and tickets.
+Manual-testing analysis before and during test design: read requirements, find what is confirmed and what is not, design the scenarios that matter and judge coverage. The result is analysis in the chat; other skills turn it into files and tickets.
 
 **Golden rule:** never infer a requirement. Every statement in your output carries one label from the table below, and anything that is not confirmed by a source is never written as if it were.
 
 **Not this skill:**
 - Building or updating the Checklist + RTM workbook or the Open Questions file → `/yn-qc:checklist-gen` (or `/yn-qc:checklist-import` for a whole document set).
 - Writing, reviewing or classifying a Jira ticket → `/yn-qc:ticket-review`.
+- Release go/no-go, regression impact of a change, testing estimates, QC status reports → `/yn-qc:release-review`.
 - Executing tests on a site → `/yn-qc:retest-run`; summarising an automated run → `/yn-qc:testrun-report`.
 
 ## Sources and language
@@ -29,7 +30,7 @@ Manual-testing analysis: read requirements, find what is confirmed and what is n
 | **Conflict** | Two sources disagree | Open question `kind="Conflict"`, both readings with their sources in `options` |
 | **Gap** | Information needed to test is missing (rule, message, limit, UI state, design) | Open question `kind="Gap"` |
 | **Assumption** | Your reasonable guess, not confirmed | Stated as such; scenarios that rely on it end with "(assumption)". If it changes an expected result, raise it as a Gap too |
-| **Risk** | Something likely to break or costly if it breaks | Drives priority and regression scope |
+| **Risk** | Something likely to break or costly if it breaks | Drives priority |
 | **Recommendation** | Your suggestion (extra check, doc fix, UX change) | Its own section, never mixed into requirements |
 
 For every Conflict, Gap and Assumption state the **testing impact**: which scenarios are blocked or uncertain and what you would expect under each reading. Never pick a side in a Conflict yourself.
@@ -85,36 +86,16 @@ Map requirement → rule → scenario. When a checklist exists, start from its R
 
 Coverage: Full / Partial / Missing.
 
-### 5. Regression impact
-For a fix or change:
-
-| Area | Kind | Reason | Priority | Suggested tests |
-|---|---|---|---|---|
-
-Kind: Direct (changed code) / Related (shares the logic) / Cross-module (shares data, API, state) / Smoke (minimum after deploy). Propose a full regression only with a stated reason.
-
-### 6. Exploratory charter
+### 5. Exploratory charter
 Mission, area, time box (e.g. 60 min), test ideas, risks, what to record. Always include: double click and duplicate submit, slow network, session expiry, concurrent edit, very long text, empty and large data sets, special characters and Unicode.
 
-### 7. UI review
+### 6. UI review
 If a dedicated UI review skill is available (for example `ui-review` or `ui-ux-pro-max`), use it for the per-component detail. Otherwise compare with the approved design: layout and alignment, exact text and messages, loading / empty / error / disabled states, long text and overflow, the desktop viewports the project tests. Keep UI findings apart from business logic, and log a component-level defect once, not once per screen.
 
-### 8. Release readiness
-Inputs: Summary and RTM from the checklist, the latest retest round, open bugs and open questions. Verdict:
-- **NO-GO** if any Critical scenario is FAIL, BLOCKED or NOT TESTED; any Critical/Blocker bug is open; or a P0 open question affecting an in-scope feature is unanswered.
-- **GO WITH RISK** if every Critical scenario passes but High scenarios fail or open P1 questions remain; list each one with its workaround and owner.
-- **GO** if every Critical and High scenario is PASS (or N/A / KNOWN GAP accepted by the PO) and no Major-or-worse bug is open.
-
-Output: the verdict, the numbers (PASS / FAIL / BLOCKED / NOT TESTED by priority), then the reasons as bullets.
-
-### 9. Testing estimate
-Estimate from the scenarios, not from page count. Per area: count scenarios by priority; estimate design, execution, retest (based on the expected failure rate and number of rounds) and reporting; state every assumption (environment ready, test data, accounts, rounds); give a range (low–high), not a single number.
-
-### 10. Supporting outputs
+### 7. Supporting outputs
 - **Test data:** valid, invalid, boundary, empty/null, duplicate, special characters, Unicode, long text, large and decimal numbers, dates (past, future, time zones), data owned by another account.
 - **Permission matrix:** `| Role | View | Create | Edit | Delete | Approve |`; also check button visibility, direct URL, API authorisation, inherited permission, removed or inactive user, cross-owner access.
 - **Integration cases:** success, invalid request, invalid response, timeout, retry, duplicate request, partial failure, data mismatch, auth failure.
-- **QC status report:** Done / In progress / Blockers / Risks / Next, with numbers.
 - **Teammate's test cases:** testable? expected clear? duplicates? missing negative / boundary / permission? priority right? behaviour or implementation detail? Answer with the row and the fix.
 
 ## Commands
@@ -127,12 +108,10 @@ Match the user's intent, in any language; the phrases are examples.
 | Main flows / luồng chính | 2 |
 | P0/P1 scenarios / viết scenario | 3 |
 | Review coverage / kiểm tra độ phủ | 4 |
-| Regression impact / ảnh hưởng regression | 5 |
-| Exploratory charter | 6 |
-| Review UI | 7 |
-| Release readiness / có release được không | 8 |
-| Estimate / ước lượng effort | 9 |
-| Test data, permission matrix, weekly report, review teammate's test cases | 10 |
+| Exploratory charter | 5 |
+| Review UI | 6 |
+| Test data, permission matrix, integration cases, review teammate's test cases | 7 |
+| Release readiness, regression impact, estimate, weekly report | → `/yn-qc:release-review` |
 | Create Jira bug / review ticket | → `/yn-qc:ticket-review` |
 
 With no clear task: run task 1, then offer task 3 for the P0/P1 flows. Keep the output short and structured.
@@ -142,5 +121,3 @@ With no clear task: run task 1, then offer task 3 for the P0/P1 flows. Keep the 
 - Filling a missing message, limit or rule with what systems "usually" do. That is a Gap, not an expected result.
 - Choosing one side of a Conflict and writing the scenario as if it were confirmed.
 - Generating many near-identical scenarios instead of covering the missing angles.
-- Proposing a full regression without saying why.
-- Giving a release verdict without the numbers behind it.

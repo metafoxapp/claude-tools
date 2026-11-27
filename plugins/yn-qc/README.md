@@ -23,7 +23,8 @@ Nếu máy không cho cài thẳng, dùng venv: `python3 -m venv .venv && . .ven
 
 | Lệnh | Việc |
 |---|---|
-| `/yn-qc:requirement-review` | Phân tích requirement, scenario, estimate, regression, release readiness |
+| `/yn-qc:requirement-review` | Phân tích requirement, tìm gap, thiết kế scenario, kiểm tra độ phủ (trước khi test) |
+| `/yn-qc:release-review` | Release go/no-go, regression impact, estimate, báo cáo QC (từ kết quả test) |
 | `/yn-qc:checklist-gen` | Dựng/cập nhật file Checklist + RTM Excel và Open Questions |
 | `/yn-qc:checklist-import` | Sinh test case từ PRD/decisions/permission, đồng bộ khi tài liệu đổi |
 | `/yn-qc:ticket-review` | Viết và review ticket Jira |

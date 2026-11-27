@@ -2,7 +2,10 @@
 
 ## 0.2.0
 
-`requirement-review` được viết lại sau khi đánh giá chất lượng skill:
+Tách `requirement-review` thành hai skill và viết lại sau khi đánh giá chất lượng:
+
+- Skill mới `release-review`: release go/no-go, regression impact, estimate testing, báo cáo QC. Đầu vào là kết quả checklist, bug và open questions.
+- `requirement-review` chỉ còn phần trước khi test: phân tích requirement, luồng, scenario, coverage, exploratory, UI, test data, permission matrix, review test case của member.
 
 - Mô tả trigger chuyển sang dạng "Use when…", nêu rõ khi nào dùng và tách khỏi `checklist-gen`, `checklist-import`, `ticket-review` để không tranh nhau trigger. Thêm mục "Not this skill".
 - Gộp ba bộ phân loại cũ thành một bảng nhãn duy nhất (Confirmed Requirement, Confirmed Rule, Conflict, Gap, Assumption, Risk, Recommendation). Mỗi nhãn ghi rõ nó trở thành gì trong checklist-gen; Conflict/Gap ứng với `kind` của Open Questions.

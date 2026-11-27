@@ -1,6 +1,6 @@
 ---
 name: retest-run
-description: Run a retest round or a full run on staging using Playwright through the UI only, then update the checklist and write tickets for the failures.
+description: Use when a retest round or a full manual run must be executed on staging through the UI only (Playwright), with the checklist updated and tickets written for the failures.
 argument-hint: "[round name] [scope, e.g. failed+blocked+not-tested]"
 disable-model-invocation: true
 ---
@@ -18,7 +18,7 @@ Exceptions must be stated by the requester, case by case.
 
 ## Before running
 
-Back up the checklist and the ticket file with a timestamp suffix (`*.before-<task>-<date>.xlsx`). Back up on every round, because accidental overwrites happen often.
+Back up the checklist workbook and its data file with a timestamp suffix (`*.before-<task>-<date>.xlsx`, `*.before-<task>-<date>.py`). Back up on every round, because accidental overwrites happen often.
 
 If the user may have edited the checklist since the last build, pull their changes into the data file first (`diff_user_edits.py`, see section B of the checklist-gen skill).
 
@@ -36,11 +36,17 @@ Record each result with the Status / Tester / Notes rules of the checklist-gen s
 
 ## Writing tickets
 
-One defect, one ticket, numbered on from the existing file, never restarting from 1 (in the checklist data these are `ISSUES` rows, e.g. `SHP-BUG-07` after `SHP-BUG-06`). Each ticket has: a title naming the module and screen, the account to reproduce with, the steps, the actual result, the expected result with its source (decision number or PRD section), and the screenshot path. Use `/yn-qc:ticket-review` for the wording.
+Tickets live in two places: the **Issue Log** (the `ISSUES` rows of the checklist data file, which is the ticket file of this skill) and Jira. Add the Issue Log row first; once the Jira ticket exists, put its key in the row's Jira key field and rebuild.
 
-Pure UI or experience issues are presented in the conversation; do not add them to the ticket file yourself unless asked.
+One defect, one ticket, numbered on from the existing Issue Log, never restarting from 1 (in the checklist data these are `ISSUES` rows, e.g. `SHP-BUG-07` after `SHP-BUG-06`). Each ticket has: a title naming the module and screen, the account to reproduce with, the steps, the actual result, the expected result with its source (decision number or PRD section), and the screenshot path. Use `/yn-qc:ticket-review` for the wording.
+
+Pure UI or experience issues are presented in the conversation; do not add them to the Issue Log yourself unless asked (then use the UI issue template of `/yn-qc:ticket-review`). A failure whose expected result depends on an open question is not a ticket: keep the case BLOCKED and point to the question ID.
 
 When the expected result in the checklist is wrong compared with the documents, fix the expected result and close the ticket as "Not a bug" (Issue Log status N/A, note "Not a bug"), do not leave the case hanging at FAIL.
+
+## Automated cases
+
+If part of the scope is covered by an automated suite, run it separately (`/yn-qc:testrun-report`) and fold its summary into the data file with checklist-gen's `tcs_json.py results` instead of re-running those cases by hand.
 
 ## Reporting back
 

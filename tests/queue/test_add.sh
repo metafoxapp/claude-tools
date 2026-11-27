@@ -21,6 +21,16 @@ assert_eq "9" "$(ls "$QD/inbox" | wc -l | tr -d ' ')" "9 files in inbox"
 assert_eq "9" "$(ls "$QD/inbox" | sort -u | wc -l | tr -d ' ')" "ids unique"
 [ ! -d "$QD/.lock" ] && pass "lock released" || fail "lock left behind"
 
+echo "add: mkdir that never fails (non-exclusive) still gives unique ids"
+fake=$(mktemp -d "${TMPDIR:-/tmp}/yn-fake.XXXXXX")
+printf '#!/bin/sh\nexec /bin/mkdir -p "$@"\n' > "$fake/mkdir"; chmod +x "$fake/mkdir"
+before=$(ls "$QD/inbox" | wc -l | tr -d ' ')
+for n in 1 2 3 4 5 6 7 8; do ( task "m$n" | PATH="$fake:$PATH" bash "$Q/add.sh" >/dev/null ) & done
+wait
+assert_eq "$((before + 8))" "$(ls "$QD/inbox" | wc -l | tr -d ' ')" "8 more files with a non-exclusive mkdir"
+[ ! -d "$QD/.lock" ] && pass "lock released (fake mkdir)" || fail "lock left behind (fake mkdir)"
+rm -rf "$fake"
+
 echo "add: validation"
 printf '' | bash "$Q/add.sh" >/dev/null 2>&1; assert_eq "1" "$?" "empty stdin rejected"
 printf 'no front matter\n' | bash "$Q/add.sh" >/dev/null 2>&1; assert_eq "1" "$?" "missing front matter rejected"

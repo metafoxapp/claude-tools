@@ -1,251 +1,128 @@
 ---
 name: requirement-review
-description: Manual QC copilot for the whole test life cycle (requirement analysis, test scenario design, estimation, coverage and regression analysis, release readiness, QC reporting and review of a teammate's test cases), used whenever the user asks for manual testing work.
-argument-hint: "[command, e.g. Analyze requirement] [document or text]"
+description: Use when the user shares a PRD, spec or user story, or asks for requirement gaps, test scenarios, test coverage, test data or a permission matrix before testing, as analysis in the chat rather than checklist files or Jira tickets.
+argument-hint: "[task, e.g. analyze requirement | P0 scenarios | coverage] [document or text]"
 ---
-# QC Manual Testing Copilot
+# QC requirement review
 
-## Role
+Manual-testing analysis before and during test design: read requirements, find what is confirmed and what is not, design the scenarios that matter and judge coverage. The result is analysis in the chat; other skills turn it into files and tickets.
 
-Act as a Senior Manual QC Engineer with deep experience in requirement analysis,
-functional/UI/integration/permission/regression/exploratory testing, bug reporting,
-release readiness, and QC planning.
+**Golden rule:** never infer a requirement. Every statement in your output carries one label from the table below, and anything that is not confirmed by a source is never written as if it were.
 
-**Primary goals:**
-- Increase test coverage, reduce duplicate test cases
-- Find requirement gaps early
-- Prioritise the business-critical flows correctly
-- Optimise the QC team's effort
-- Output that is clear, testable and actionable
+**Not this skill:**
+- Building or updating the Checklist + RTM workbook or the Open Questions file → `/yn-qc:checklist-gen` (or `/yn-qc:checklist-import` for a whole document set).
+- Writing, reviewing or classifying a Jira ticket → `/yn-qc:ticket-review`.
+- Release go/no-go, regression impact of a change, testing estimates, QC status reports → `/yn-qc:release-review`.
+- Executing tests on a site → `/yn-qc:retest-run`; summarising an automated run → `/yn-qc:testrun-report`.
 
-Related skills in this plugin: `/yn-qc:checklist-gen` builds the checklist + RTM files from what you design here, `/yn-qc:checklist-import` turns source documents into test cases, `/yn-qc:ticket-review` writes and reviews Jira tickets.
+## Sources and language
 
----
+- Read every document the user gives.
+- **Precedence:** a decision, an answered open question or a later approved document overrides the PRD. The overriding item is a **Confirmed Rule** (cite it, e.g. `(DEC-21)`), not a Conflict; add a docs note that the PRD needs updating. A **Conflict** is only between sources of equal standing (PRD vs user story, PRD vs design, two decisions).
+- Cite the source of every confirmed item in brackets: `(PRD 3.1)`, `(US-2.4)`, `(DEC-12)`, `(Q-SHP-01 confirmed)`. No source → it is not confirmed.
+- Write the analysis in the user's language. Write scenarios, steps and expected results in English, because they go into the checklist unchanged. Write open questions in the language the PM reads (Vietnamese in the team's Open Questions file, see checklist-gen).
 
-## Core principles
+## Labels (one set, used everywhere)
 
-### 1. Never infer requirements
-Never invent a requirement. When information is missing or ambiguous, classify it explicitly:
+| Label | Use when | Becomes |
+|---|---|---|
+| **Confirmed Requirement** | Stated in a document; cite it | A `REQS` row in checklist-gen |
+| **Confirmed Rule** | Decided by the PO/BA outside the PRD (decision, answered question); cite it | The expected result of the linked scenarios |
+| **Conflict** | Two sources of equal standing disagree | Open question `kind="Conflict"`, both readings with their sources in `options` |
+| **Gap** | Information needed to test is missing (rule, message, limit, UI state, design). Not the checklist status KNOWN GAP, which means behaviour documented as not built | Open question `kind="Gap"` |
+| **Assumption** | Your reasonable guess, not confirmed | Stays in the analysis, marked "(assumption)". Before a scenario that relies on it goes into the checklist, raise a Gap question and write "(pending Q-…)" instead |
+| **Risk** | Something likely to break or costly if it breaks | Drives priority |
+| **Recommendation** | Your suggestion (extra check, doc fix, UX change) | Its own section, never mixed into requirements |
 
-| Type | Meaning |
-|---|---|
-| **Confirmed Requirement** | Stated explicitly in the documents |
-| **Confirmed Business Rule** | A business rule that has been confirmed |
-| **Assumption** | A reasonable guess that is not confirmed yet |
-| **Open Question** | A question to clarify with the BA/PM |
-| **Requirement Gap** | Information needed for testing is missing |
-| **Design Clarification Required** | The UI design or flow needs clarification |
+For every Conflict, Gap and Assumption state the **testing impact**: which scenarios are blocked or uncertain and what you would expect under each reading. Never pick a side in a Conflict yourself.
 
-Always explain the **testing impact** of every gap.
+**Where findings go:** a requirement question (Conflict or Gap) goes to the Open Questions file only, with ID `Q-<PREFIX>-NN` (checklist-gen). A defect found while testing goes to the Issue Log and a ticket (`/yn-qc:ticket-review`), and a ticket that depends on an open question cites its ID instead of restating the question.
 
-### 2. Coverage over quantity
-Do not maximise the number of test cases. Prioritise:
-- Business-critical flows, boundary cases
-- Permission cases, state-transition cases
-- Integration failure cases
+## Priority
 
-### 3. Keep testing types separate
-Always classify: Functional / UI-UX / API-Integration / Permission / Regression / Exploratory.
+This table and the Type list below are the single source for the plugin: checklist-gen, checklist-import and release-review refer here.
 
-### 4. Risk-based priority
-```
-Risk = Business Impact × Failure Probability × Complexity × Change Impact
-```
-- **P0** — Must test before release
-- **P1** — High priority
-- **P2** — Normal
-- **P3** — Nice to have
+| Priority | Checklist value | Criteria |
+|---|---|---|
+| **P0** | Critical | Main flow; money, payment, reward; login, auth, permission; create/update/delete of the core object; state transitions; data loss. Release gate: must PASS. |
+| **P1** | High | Important alternate flows, validation of P0 inputs, integrations, high-traffic features. |
+| **P2** | Medium | Secondary features, ordinary validation, UI states. |
+| **P3** | Low | Cosmetic issues, rare edge cases. |
 
-(In the checklist file these map to the Priority column: P0 = Critical, P1 = High, P2 = Medium, P3 = Low.)
+Raise one level when the area changed in this release or has a history of defects; lower one level when it is rarely used and has an easy workaround. Give a one-line reason for every P0 and for every change of level. Open questions use the same P0–P3 scale.
 
-Always prioritise: Login/Auth, Create/Update/Delete, Publish/Submit, Payment/Reward,
-Permission, State Transition, Data sync, External integrations.
+## Type and coverage angles
 
----
+- **Type** (one per scenario, the checklist `Type` column): `Functional`, `UI`, `Permission`, `Integration`, `Regression`. Exploratory sessions are charters (task 5), not checklist rows.
+- **Angles** to consider for each requirement: happy path, alternate flow, negative, boundary, validation, permission, state transition, data consistency, integration failure, error handling, feature switched off.
+- Techniques: equivalence partitioning, boundary values, decision table, state transition, use case, error guessing.
+- Prefer coverage over count: one behaviour per scenario, no duplicates, test behaviour rather than UI implementation.
 
-## Core skills
+## Tasks
 
-### Skill 1 — Requirement Analysis
-Extract from the documents: business objective, actors, preconditions, functional requirements,
-business rules, validations, permissions, dependencies, inputs/outputs, system states, error handling,
-integrations. Flag: ambiguous requirements, missing requirements, conflicts, risks,
-open questions.
+### 1. Requirement analysis
+Extract objective, actors and roles, preconditions, functional requirements, business rules, validations, permissions, states, inputs/outputs, error handling, integrations, dependencies.
 
-**Sample output:**
-| Category | Detail | Status | QC Impact |
-|---|---|---|---|
-
----
-
-### Skill 2 — Workflow Analysis
-Turn requirements into end-to-end business flows.
-
-Analyse: Main Flow / Alternate Flow / Error Flow / State Transition / Cross-module Flow.
-
-Format: `Input → Action → System Processing → Output → Next State`
-
-For each step: Trigger, Input, Expected state, Data created/updated, Downstream impact, Failure points.
-
----
-
-### Skill 3 — Test Scenario Design
-Generate test scenarios of these types:
-Happy Path / Alternate Flow / Negative / Boundary / Validation / Permission /
-State Transition / Data Consistency / Integration / Error Handling / Regression.
-
-Techniques: Equivalence Partitioning, Boundary Value Analysis, Decision Table,
-State Transition Testing, Use Case Testing, Error Guessing, Risk-Based Testing.
-
-**Sample output:**
-| ID | Test Scenario | Type | Priority | Expected Result |
+Output:
+| # | Item | Label | Source | QC impact |
 |---|---|---|---|---|
 
-Rules: scenarios are atomic, not duplicated, and focus on behaviour (not on the UI implementation).
+Then list the open questions ready for checklist-gen: `topic`, `question`, `kind` (Conflict / Gap), `priority` (P0–P3), affected scenarios, and for a Conflict each reading with its source.
 
----
+### 2. Workflow analysis
+Turn requirements into flows: main, alternate, error, state transition, cross-module. One line per step: `Input → Action → System processing → Output → Next state`, noting data created/updated, downstream impact and failure points.
 
-### Skill 4 — Risk-Based Testing
-Rate each feature on: Business Impact, Failure Probability, Technical Complexity,
-Change Impact, User Frequency, Data Sensitivity, Integration Dependency.
-Classify P0/P1/P2/P3 and explain why.
+### 3. Test scenario design
+Output exactly the columns checklist-gen takes for `TCS`, so the rows can be pasted into the data file:
 
----
+| Req ID | Epic | Feature | Scenario | Steps | Expected | Type | Priority |
+|---|---|---|---|---|---|---|---|
 
-### Skill 5 — Test Coverage Review
-Map: Requirement → Business Rule → Test Scenario → Test Case.
+- Scenario: one line, one behaviour. Steps: short, separated by `|`, starting from preconditions (role, setting, data).
+- Expected: checkable; quote the exact message when the source gives one. Depends on an open question → append "(pending Q-…)". Depends on an assumption → append "(assumption)".
+- Priority uses the checklist values (Critical / High / Medium / Low).
+- Do not invent TC IDs; checklist-gen numbers them.
 
-Look for: requirements without coverage, business rules without a negative test,
-missing boundary/permission/state-transition/integration cases, duplicate scenarios.
+### 4. Coverage review
+Map requirement → rule → scenario. When a checklist exists, start from its RTM sheet or the builder's `Reqs without TC` line, but that line only proves each requirement has one test case: check every business rule, validation and permission inside a requirement separately. Recommend one `REQS` row per testable rule so the RTM itself shows the gap. Look for requirements without a scenario, rules without a negative case, missing boundary / permission / state / integration cases, and duplicates.
 
-**Sample output:**
-| Requirement | Covered By | Coverage Status | Missing Coverage |
+| Req ID | Covered by | Coverage | Missing |
 |---|---|---|---|
 
-Coverage Status: Full / Partial / Missing.
+Coverage: Full / Partial / Missing.
 
----
+### 5. Exploratory charter
+Mission, area, time box (e.g. 60 min), test ideas, risks, what to record. Always include: double click and duplicate submit, slow network, session expiry, concurrent edit, very long text, empty and large data sets, special characters and Unicode.
 
-### Skill 6 — Exploratory Testing
-Create an exploratory charter with: Mission, Focus Area, Test Ideas, Risks, Observations.
-Always consider: double click, duplicate submit, slow network, session expiry,
-concurrent update, very long text, empty/large dataset, special characters.
+### 6. UI review
+If a dedicated UI review skill is available (for example `ui-review` or `ui-ux-pro-max`), use it for the per-component detail. Otherwise compare with the approved design: layout and alignment, exact text and messages, loading / empty / error / disabled states, long text and overflow, the desktop viewports the project tests. Keep UI findings apart from business logic, and log a component-level defect once, not once per screen.
 
----
+### 7. Supporting outputs
+- **Test data:** valid, invalid, boundary, empty/null, duplicate, special characters, Unicode, long text, large and decimal numbers, dates (past, future, time zones), data owned by another account.
+- **Permission matrix:** `| Role | View | Create | Edit | Delete | Approve |`; also check button visibility, direct URL, API authorisation, inherited permission, removed or inactive user, cross-owner access.
+- **Integration cases:** success, invalid request, invalid response, timeout, retry, duplicate request, partial failure, data mismatch, auth failure.
+- **Teammate's test cases:** testable? expected clear? duplicates? missing negative / boundary / permission? priority right? behaviour or implementation detail? Answer with the row and the fix.
 
-### Skill 7 — UI/UX Review
+## Commands
 
-If a dedicated UI/UX review skill is installed, use it for the detailed per-component checklist.
-Otherwise review against the approved design: layout, text, states (loading, empty, error, disabled) and consistency.
-Note: review the UI separately from business logic; do not log the same root cause several times when the defect sits at component level.
+Match the user's intent, in any language; the phrases are examples.
 
----
-
-### Skill 8 — Bug Report & Jira Ticket
-
-To write, review or classify a Jira ticket → use **`/yn-qc:ticket-review`**.
-
-That skill covers the ticket templates, the writing rules for title / steps / actual / expected, Bug vs Improvement,
-severity, developer comments and worked examples.
-
----
-
-### Skill 9 — Regression Impact Analysis
-When there is a bug fix or a feature change, analyse:
-
-| Area | Regression Reason | Priority | Suggested Test |
-|---|---|---|---|
-
-Classify: **Direct Regression** (functions that changed directly) /
-**Related Regression** (components sharing the same logic) /
-**Cross-module Regression** (modules sharing data/API/state) /
-**Smoke Test** (minimum tests after deployment).
-
-Do not propose a full regression automatically without a reason.
-
----
-
-### Skill 10 — Release Readiness
-Assess the release on: test scope/coverage, passed/failed/blocked tests,
-known issues, critical bugs, regression status, environment stability,
-unresolved gaps, business risk.
-
-**Verdict:** GO / GO WITH RISK / NO-GO — always give the specific reasons.
-
-**Example:**
-> Release Recommendation: **GO WITH RISK**
-> - Core P0 flows passed. No blocker defects.
-> - 2 known P2 UI issues remain. Payment regression passed.
-
----
-
-## Supporting skills
-
-### Test Data Generator
-Generate data sets: Valid / Invalid / Boundary / Empty-null / Duplicate /
-Special characters / Unicode / Long text / Large number / Decimal / Date-time /
-Historical date / Cross-account data.
-
-### Permission Matrix
-| Role | View | Create | Edit | Delete | Approve |
-|---|---|---|---|---|---|
-
-Always also verify: button visibility, direct URL, API authorization,
-inherited permission, removed/inactive user, cross-workspace access.
-
-### Integration Testing
-For each integration: Success / Invalid request / Invalid response / Timeout /
-Retry / Duplicate request / Partial failure / Data mismatch / Auth failure.
-
-### Testing Estimation
-Estimate from the scenarios, not from page count: for each area count the scenarios by priority,
-estimate design, execution, retest and reporting effort, state every assumption (environment, data, number of rounds)
-and give a range rather than a single number.
-
-### QC Reporting
-Short report for management: Done / In Progress / Blockers / Risks / Next.
-
-### QC Member Review
-When reviewing a QC member's test cases, check:
-- Is each scenario testable? Is the expected result clear?
-- Any duplicate coverage? Missing negative/boundary/permission cases?
-- Is the priority right? Does it test behaviour or an implementation detail?
-
----
-
-## Quick commands
-
-The user can type these commands to trigger the right skill:
-
-| Command | Skill |
+| Example request | Task |
 |---|---|
-| `Analyze requirement` | Skill 1 — Requirement Analysis |
-| `Generate main test flows` | Skill 2 — Workflow Analysis |
-| `Generate P0/P1 test scenarios` | Skill 3 — Test Scenario Design |
-| `Review testcase coverage` | Skill 5 — Test Coverage Review |
-| `Find requirement gaps` | Skill 1 — flag Requirement Gap |
-| `Generate exploratory charter` | Skill 6 — Exploratory Testing |
-| `Review UI evidence` | Skill 7 — UI/UX Review |
-| `Create Jira bug` / `Review ticket` | Skill 8 → `/yn-qc:ticket-review` |
-| `Analyze regression impact` | Skill 9 — Regression Impact |
-| `Generate permission matrix` | Supporting — Permission Matrix |
-| `Generate test data` | Supporting — Test Data Generator |
-| `Estimate testing effort` | Supporting — Testing Estimation |
-| `Review release readiness` | Skill 10 — Release Readiness |
-| `Review member testcase` | Supporting — QC Member Review |
-| `Create QC weekly report` | Supporting — QC Reporting |
+| Analyze requirement / phân tích requirement / tìm gap | 1 |
+| Main flows / luồng chính | 2 |
+| P0/P1 scenarios / viết scenario | 3 |
+| Review coverage / kiểm tra độ phủ | 4 |
+| Exploratory charter | 5 |
+| Review UI | 6 |
+| Test data, permission matrix, integration cases, review teammate's test cases | 7 |
+| Release readiness, regression impact, estimate, weekly report | → `/yn-qc:release-review` |
+| Create Jira bug / review ticket | → `/yn-qc:ticket-review` |
 
----
+With no clear task: run task 1, then offer task 3 for the P0/P1 flows. Keep the output short and structured.
 
-## Default behaviour (no specific command)
+## Common mistakes
 
-Analyse the input from a manual-testing point of view. Identify the objective, roles, requirements, business rules, permissions, states, integrations, risks and gaps. Classify Assumption / Open Question / Gap explicitly. Apply risk-based testing. Keep the output short, structured and actionable.
-
----
-
-## Golden rule
-
-> The AI must not infer requirements.
->
-> Always distinguish: **Confirmed Requirement** vs **Assumption** vs **Recommendation** vs **Risk** vs **Open Question**.
->
-> Prioritise business-critical flows. Optimise test coverage, not the number of test cases.
+- Filling a missing message, limit or rule with what systems "usually" do. That is a Gap, not an expected result.
+- Choosing one side of a Conflict and writing the scenario as if it were confirmed.
+- Generating many near-identical scenarios instead of covering the missing angles.

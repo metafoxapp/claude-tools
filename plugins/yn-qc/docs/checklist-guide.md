@@ -11,7 +11,7 @@ Dành cho tester. File Excel do skill checklist-gen dựng; bạn chỉ điền 
 | **Checklist** | Danh sách test case | Chỉ 3 cột vàng: **Status**, **Tester**, **Notes / Ticket** |
 | **RTM** | Requirement → test case liên quan, số lượng theo Status, kết quả từng requirement | Tự tính (công thức) |
 | **Summary** | Tổng hợp theo Status, theo requirement, theo epic, % Pass | Tự tính (công thức) |
-| **Issue Log** | Bug và điểm cần làm rõ | Không sửa tay; gửi thay đổi cho QC lead |
+| **Issue Log** | Bug tìm thấy khi test (câu hỏi về requirement nằm ở file Open Questions) | Không sửa tay; gửi thay đổi cho QC lead |
 
 **Chỉ sửa 3 cột Status / Tester / Notes của sheet Checklist.** File được dựng lại từ file dữ liệu, nên mọi chỗ sửa khác (Issue Log, Account testing, Overview…) sẽ mất ở lần dựng sau: muốn đổi chỗ nào thì gửi cho QC lead, QC lead đưa vào file dữ liệu.
 
@@ -50,7 +50,7 @@ Quy tắc hay nhầm:
 
 ## 6. Issue Log
 
-Mỗi bug hoặc điểm cần làm rõ một dòng. Tester không sửa trực tiếp sheet này: gửi thay đổi (dòng mới, Status mới, Jira key, notes) cho QC lead để đưa vào file dữ liệu. Status chỉ có 4 giá trị:
+Mỗi bug một dòng. Câu hỏi về requirement không ghi ở đây mà ghi vào file Open Questions. Tester không sửa trực tiếp sheet này: gửi thay đổi (dòng mới, Status mới, Jira key, notes) cho QC lead để đưa vào file dữ liệu. Status chỉ có 4 giá trị:
 
 | Status | Khi nào chuyển |
 |---|---|

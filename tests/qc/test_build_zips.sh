@@ -9,8 +9,8 @@ cd "$OUT" && bash scripts/build-zips.sh yn-qc >/dev/null 2>&1
 rc=$?
 assert_eq 0 "$rc" "build-zips exits 0"
 D="$OUT/dist/yn-qc"
-assert_eq 6 "$(ls "$D"/*.zip 2>/dev/null | wc -l | tr -d ' ')" "6 zips"
-for s in requirement-review checklist-gen checklist-import ticket-review retest-run testrun-report; do
+assert_eq 7 "$(ls "$D"/*.zip 2>/dev/null | wc -l | tr -d ' ')" "7 zips"
+for s in requirement-review release-review checklist-gen checklist-import ticket-review retest-run testrun-report; do
   assert_contains "$(unzip -l "$D/$s.zip" 2>/dev/null)" "$s/SKILL.md" "$s zip has SKILL.md"
   assert_eq 0 "$(unzip -p "$D/$s.zip" "$s/SKILL.md" | grep -c '\.\./\.\./')" "$s SKILL.md has no ../../"
 done
@@ -24,12 +24,12 @@ X="$(tmpdir)"; unzip -q "$D/checklist-gen.zip" -d "$X"
 python3 "$X/checklist-gen/scripts/checklist/build_checklist.py" \
   "$X/checklist-gen/templates/checklist/example_data.py" "$X/out.xlsx" >/dev/null 2>&1
 assert_eq 0 "$?" "builder from zip runs"
-for s in requirement-review checklist-gen checklist-import ticket-review retest-run testrun-report; do
+for s in requirement-review release-review checklist-gen checklist-import ticket-review retest-run testrun-report; do
   if unzip -p "$D/$s.zip" "$s/SKILL.md" | grep -q 'next to this file'; then
     assert_contains "$(unzip -l "$D/$s.zip")" "$s/scripts/" "$s: 'next to this file' is true (scripts/ in zip)"
   fi
 done
-for s in requirement-review checklist-gen checklist-import ticket-review retest-run testrun-report; do
+for s in requirement-review release-review checklist-gen checklist-import ticket-review retest-run testrun-report; do
   md="$(unzip -p "$D/$s.zip" "$s/SKILL.md")"
   keys=$(printf '%s\n' "$md" | awk 'NR == 1 { next } $0 == "---" { exit } /^[A-Za-z][A-Za-z0-9_-]*:/ { sub(/:.*/, ""); print }' | sort -u)
   badkeys=$(printf '%s\n' "$keys" | grep -vxE 'name|description|license|allowed-tools|metadata|compatibility')

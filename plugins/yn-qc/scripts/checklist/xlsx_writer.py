@@ -191,6 +191,7 @@ def summary(ws, ck, reach, last_req):
     title(ws, f"QC SUMMARY — {ck.project['name'].upper()}", "I", 12)
     er = max(last_req, 3)
     J, C, N = f"Checklist!$J$3:$J${reach}", f"Checklist!$C$3:$C${reach}", f"RTM!$N$3:$N${er}"
+    P = f"Checklist!$I$3:$I${reach}"
 
     def head(row, cols):
         for j, h in enumerate(cols, 1):
@@ -227,6 +228,17 @@ def summary(ws, ck, reach, last_req):
             ws[f"{col}{r}"] = f'=COUNTIFS({C},$A{r},{J},"{s}")'
         ws.cell(r, 9, f"=IFERROR(C{r}/(B{r}-F{r}),0)").number_format = "0%"
     ws.cell(row + len(epics) + 2, 1, "% Pass = PASS / (TC − N/A)")
+    # By priority: the release gate reads the Critical row (every Critical TC must be PASS).
+    row = row + len(epics) + 4
+    head(row, ["Priority", "# TC", "PASS", "FAIL", "KNOWN GAP", "N/A", "NOT TESTED", "BLOCKED", "% Pass"])
+    for k, name in enumerate(PRIORITIES):
+        r = row + 1 + k
+        ws.cell(r, 1, name)
+        ws.cell(r, 2, f"=COUNTIF({P},A{r})")
+        for col, s in zip("CDEFGH", ["PASS", "FAIL", "KNOWN GAP", "N/A", "NOT TESTED", "BLOCKED"]):
+            ws[f"{col}{r}"] = f'=COUNTIFS({P},$A{r},{J},"{s}")'
+        ws.cell(r, 9, f"=IFERROR(C{r}/(B{r}-F{r}),0)").number_format = "0%"
+    ws.cell(row + len(PRIORITIES) + 2, 1, "Release gate: every Critical test case PASS (or N/A / KNOWN GAP accepted by the PO).")
     for r in ws.iter_rows(min_row=3):
         for c in r:
             if c.value is not None and c.font.name != FONT:  # cells written without an explicit font

@@ -23,7 +23,8 @@ Nếu máy không cho cài thẳng, dùng venv: `python3 -m venv .venv && . .ven
 
 | Lệnh | Việc |
 |---|---|
-| `/yn-qc:requirement-review` | Phân tích requirement, scenario, estimate, regression, release readiness |
+| `/yn-qc:requirement-review` | Phân tích requirement, tìm gap, thiết kế scenario, kiểm tra độ phủ (trước khi test) |
+| `/yn-qc:release-review` | Release go/no-go, regression impact, estimate, báo cáo QC (từ kết quả test) |
 | `/yn-qc:checklist-gen` | Dựng/cập nhật file Checklist + RTM Excel và Open Questions |
 | `/yn-qc:checklist-import` | Sinh test case từ PRD/decisions/permission, đồng bộ khi tài liệu đổi |
 | `/yn-qc:ticket-review` | Viết và review ticket Jira |
@@ -43,4 +44,5 @@ Kết quả nằm ở `dist/yn-qc/<skill>.zip`. Trên claude.ai, vào Settings �
 ## Template
 
 - Mẫu file checklist và dữ liệu mẫu: `templates/checklist/`.
+- Bộ test tự động: `scripts/checklist/tcs_json.py export` sinh `tcs.json` từ file dữ liệu; `tcs_json.py results` đưa kết quả chạy về lại checklist.
 - Hướng dẫn điền cho tester (Status, Tester, Notes, Issue Log, Open Questions): [`docs/checklist-guide.md`](docs/checklist-guide.md).

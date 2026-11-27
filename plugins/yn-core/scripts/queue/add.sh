@@ -17,13 +17,17 @@ cat > "$tmp"
 lock="$YN_QUEUE_DIR/.lock"
 held=0
 i=0
+# The lock is owned by whoever creates $lock/owner with an exclusive (noclobber,
+# O_EXCL) redirection. mkdir alone is not enough: some mkdir implementations
+# report success when a concurrent caller created the directory first.
 while [ "$i" -lt 100 ]; do
-  if mkdir "$lock" 2>/dev/null; then held=1; break; fi
+  mkdir "$lock" 2>/dev/null || true
+  if (set -C; echo "$$" > "$lock/owner") 2>/dev/null; then held=1; break; fi
   sleep 0.1
   i=$((i + 1))
 done
 [ "$held" = 1 ] || yn_die "could not acquire $lock (stale lock? remove it if no add.sh is running)"
-trap 'rmdir "$lock" 2>/dev/null || true; rm -f "$tmp"' EXIT
+trap 'rm -f "$lock/owner"; rmdir "$lock" 2>/dev/null || true; rm -f "$tmp"' EXIT
 
 max=$(ls "$YN_QUEUE_DIR"/*/T-*.md 2>/dev/null | sed -E 's/.*T-0*([0-9]+)\.md$/\1/' | sort -n | tail -n 1 || true)
 next=$(( ${max:-0} + 1 ))

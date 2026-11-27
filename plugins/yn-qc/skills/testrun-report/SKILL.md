@@ -1,6 +1,6 @@
 ---
 name: testrun-report
-description: Let an automated test suite run on its own (locally or in CI) and give Claude only a short summary to analyse, instead of having Claude wait through the whole run.
+description: Use when an automated test suite has to run (locally or in CI) and Claude should analyse only a short summary of the results instead of waiting through the whole run.
 ---
 # Separate the test run from the agent session
 
@@ -8,7 +8,7 @@ Having the agent wait for a test suite is wasteful: most of the time is waiting,
 
 ## Two stages
 
-**The run stage** is handled by a script and needs no agent. The script runs the suite with a JSON reporter, stores the results in `runs/<timestamp>/` and creates a `runs/latest` pointer. Turn off every reporter that calls the network in real time.
+**The run stage** is handled by a script and needs no agent. The script belongs to the project (it depends on the test framework; this plugin does not ship one). It runs the suite with a JSON reporter, stores the results in `runs/<timestamp>/` and creates a `runs/latest` pointer. Turn off every reporter that calls the network in real time.
 
 **The analysis stage** is the only one that needs the agent, and it reads only a summary file.
 
@@ -23,6 +23,16 @@ This is the key. `results.json` is usually dozens of times larger than what actu
 - Compared with the previous run: which cases newly fail, which pass again
 
 The comparison with the previous run is the most valuable part, and the agent cannot work it out by itself because it never sees the earlier runs.
+
+## Feeding the checklist
+
+When the suite was generated from a QC checklist (`tcs.json`, see the checklist-gen skill), every test carries its TC ID (e.g. `SHP-004`). Then also write `summary.json` in this shape:
+
+```json
+{"results": [{"id": "SHP-004", "status": "failed", "message": "Expected total 50, got 20"}]}
+```
+
+`status` is one of `passed`, `failed`, `flaky`, `skipped`. The checklist-gen skill's `tcs_json.py results` turns it into the checklist's `RESULTS`, so the Excel, the RTM and the release numbers stay in step with the automated run.
 
 ## Re-run the failures
 

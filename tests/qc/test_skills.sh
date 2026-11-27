@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-# Checks the six yn-qc skills: names, frontmatter, side-effect flags,
+# Checks the seven yn-qc skills: names, frontmatter, side-effect flags,
 # cross references, and that no project-specific data ships in the plugin.
 cd "$(dirname "$0")/../.." || exit 1
 . tests/qc/lib.sh
 
-SKILLS="requirement-review checklist-gen checklist-import ticket-review retest-run testrun-report"
+SKILLS="requirement-review release-review checklist-gen checklist-import ticket-review retest-run testrun-report"
 WRITERS=" checklist-gen checklist-import retest-run "
 
 fm_get() { # <file> <key>
@@ -25,6 +25,7 @@ for s in $SKILLS; do
   [ -n "$d" ] && pass "$s: has description" || fail "$s: has description"
   case "$d" in *". "*) fail "$s: description is one sentence" ;; *) pass "$s: description is one sentence" ;; esac
   [ "${#d}" -le 300 ] && pass "$s: description <= 300 chars" || fail "$s: description <= 300 chars (${#d})"
+  case "$d" in "Use when"*) pass "$s: description starts with Use when" ;; *) fail "$s: description starts with Use when" ;; esac
   dmi=$(fm_get "$f" disable-model-invocation)
   case "$WRITERS" in
     *" $s "*) assert_eq "true" "$dmi" "$s: disable-model-invocation true (writes files)" ;;
@@ -70,6 +71,15 @@ $f: $h"
 done < <({ find "$PLUGIN" docs -type f -not -path '*/__pycache__/*' -not -name '*.pyc'; echo README.md; } | sort)
 if [ -z "$hits" ]; then pass "no project data in plugins/yn-qc, docs/, README.md"; else fail "no project data in plugins/yn-qc, docs/, README.md:$hits"; fi
 
+# One open-question ID format, one place for requirement questions, no leftover pandoc bullets.
+assert_eq "" "$(grep -rlE 'Q-<module>|Q-<AREA>' "$PLUGIN/skills")" "open question IDs use Q-<PREFIX>-NN everywhere"
+assert_eq "" "$(grep -n 'bugs and clarifications' "$PLUGIN/skills/checklist-gen/SKILL.md")" "Issue Log holds defects, not requirement questions"
+assert_eq "0" "$(grep -cE '^(-|[0-9]+\.)   ' "$PLUGIN/skills/ticket-review/SKILL.md")" "ticket-review has plain Markdown bullets"
+for s in checklist-import ticket-review; do
+  assert_contains "$(cat "$PLUGIN/skills/$s/SKILL.md")" "equal standing" "$s: decision over PRD is not a Conflict"
+done
+assert_contains "$(cat "$PLUGIN/skills/checklist-gen/SKILL.md")" "tcs_json.py" "checklist-gen documents tcs_json.py"
+
 # Every /yn-qc:<skill> reference points to a real skill.
 bad=""
 for ref in $(grep -rhoE '/yn-qc:[a-z0-9-]+' "$PLUGIN" --exclude-dir=__pycache__ | sort -u); do
@@ -86,6 +96,25 @@ if [ -f "$cg" ]; then
   done
 else
   fail "checklist-gen present for content checks"
+fi
+
+# requirement-review: trigger-style description and output that feeds checklist-gen.
+rr="$PLUGIN/skills/requirement-review/SKILL.md"
+if [ -f "$rr" ]; then
+  case "$(fm_get "$rr" description)" in "Use when"*) pass "requirement-review: description starts with Use when" ;;
+    *) fail "requirement-review: description starts with Use when" ;; esac
+  assert_contains "$(cat "$rr")" "| Req ID | Epic | Feature | Scenario | Steps | Expected | Type | Priority |" "requirement-review: scenario table matches checklist-gen TCS"
+  assert_contains "$(cat "$rr")" 'kind="Conflict"' "requirement-review: Conflict maps to an OQ kind"
+  assert_contains "$(cat "$rr")" 'kind="Gap"' "requirement-review: Gap maps to an OQ kind"
+  assert_contains "$(cat "$rr")" "/yn-qc:release-review" "requirement-review: hands release work to release-review"
+fi
+rl="$PLUGIN/skills/release-review/SKILL.md"
+if [ -f "$rl" ]; then
+  case "$(fm_get "$rl" description)" in "Use when"*) pass "release-review: description starts with Use when" ;;
+    *) fail "release-review: description starts with Use when" ;; esac
+  for w in "NO-GO" "GO WITH RISK" "/yn-qc:requirement-review"; do
+    assert_contains "$(cat "$rl")" "$w" "release-review: mentions $w"
+  done
 fi
 
 exit $FAILS

@@ -1,5 +1,16 @@
 # Changelog: yn-qc
 
+## 0.2.0
+
+`requirement-review` được viết lại sau khi đánh giá chất lượng skill:
+
+- Mô tả trigger chuyển sang dạng "Use when…", nêu rõ khi nào dùng và tách khỏi `checklist-gen`, `checklist-import`, `ticket-review` để không tranh nhau trigger. Thêm mục "Not this skill".
+- Gộp ba bộ phân loại cũ thành một bảng nhãn duy nhất (Confirmed Requirement, Confirmed Rule, Conflict, Gap, Assumption, Risk, Recommendation). Mỗi nhãn ghi rõ nó trở thành gì trong checklist-gen; Conflict/Gap ứng với `kind` của Open Questions.
+- Bảng scenario dùng đúng các cột `TCS` của checklist-gen (Req ID, Epic, Feature, Scenario, Steps, Expected, Type, Priority) và một danh sách Type duy nhất.
+- Bỏ công thức risk không có thang điểm, thay bằng tiêu chí cụ thể cho P0–P3 và quy tắc tăng/giảm một mức.
+- Release readiness có tiêu chí NO-GO / GO WITH RISK / GO cụ thể dựa trên số liệu checklist.
+- Bắt buộc trích nguồn cho mọi mục đã xác nhận; quy định ngôn ngữ output; lệnh nhanh nhận diện theo ý định, có ví dụ tiếng Việt; thêm mục "Common mistakes".
+
 ## 0.1.0
 
 Bản đầu tiên của plugin.

@@ -1,6 +1,6 @@
 {
   "name": "yn-qc",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "YN QC toolkit: requirement review, QC checklist + RTM (Excel), open questions, Jira tickets, UI-only retest rounds, test-run summaries.",
   "author": {
     "name": "metafoxapp"

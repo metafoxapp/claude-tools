@@ -88,4 +88,14 @@ else
   fail "checklist-gen present for content checks"
 fi
 
+# requirement-review: trigger-style description and output that feeds checklist-gen.
+rr="$PLUGIN/skills/requirement-review/SKILL.md"
+if [ -f "$rr" ]; then
+  case "$(fm_get "$rr" description)" in "Use when"*) pass "requirement-review: description starts with Use when" ;;
+    *) fail "requirement-review: description starts with Use when" ;; esac
+  assert_contains "$(cat "$rr")" "| Req ID | Epic | Feature | Scenario | Steps | Expected | Type | Priority |" "requirement-review: scenario table matches checklist-gen TCS"
+  assert_contains "$(cat "$rr")" 'kind="Conflict"' "requirement-review: Conflict maps to an OQ kind"
+  assert_contains "$(cat "$rr")" 'kind="Gap"' "requirement-review: Gap maps to an OQ kind"
+fi
+
 exit $FAILS

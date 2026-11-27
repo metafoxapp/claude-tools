@@ -21,7 +21,7 @@
       "description": "QC toolkit. requirement-review, checklist-gen/import (Excel checklist + RTM + open questions), ticket-review (Jira), retest-run (UI-only Playwright), testrun-report.",
       "category": "productivity",
       "tags": ["yn", "role:qc", "qc", "testing", "checklist"],
-      "version": "0.1.0",
+      "version": "0.2.0",
       "source": "./plugins/yn-qc"
     }
   ]

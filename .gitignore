@@ -2,3 +2,7 @@
 .yn/queue/*
 !.yn/queue/config.yaml
 .claude/worktrees/
+__pycache__/
+*.pyc
+dist/
+.yn/qc-denylist.local

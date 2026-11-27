@@ -16,6 +16,7 @@ Cài thêm plugin theo role của bạn khi có (`yn-qc`, `yn-dev`, ...). Gõ `/
 | Plugin | Role | Nội dung |
 |---|---|---|
 | [`yn-core`](plugins/yn-core/README.md) | dùng chung | `queue-*`: hàng đợi task cục bộ, tự phân nhóm, tự implement |
+| [`yn-qc`](plugins/yn-qc/README.md) | qc | requirement review, checklist + RTM Excel, ticket Jira, retest UI-only, tóm tắt test run |
 
 ## Quy ước
 

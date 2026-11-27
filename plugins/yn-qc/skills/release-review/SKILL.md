@@ -14,13 +14,13 @@ Judge test progress and release risk from evidence: checklist results, the bug l
 
 ## Inputs
 
-- Prefer the latest checklist: its Summary and RTM sheets (or the status counts printed by checklist-gen's builder), the Issue Log and the Open Questions file. Ask for them when missing instead of guessing numbers.
+- Prefer the latest checklist: the **by-priority table** on its Summary sheet (or the per-priority lines checklist-gen's builder prints, e.g. `Critical: PASS 2, FAIL 1`), the RTM, the Issue Log and the Open Questions file. A freshly built workbook has uncalculated formulas, so read the builder's lines rather than the Summary cells in that case. Ask for them when missing instead of guessing numbers.
 - State the date and round of the data you used. Never invent a count; when a number is unknown, say so and say what it would change.
 - Write in the user's language.
 
 ## Shared scales
 
-Same as `/yn-qc:requirement-review`:
+Defined in `/yn-qc:requirement-review` (the single source); in short:
 - **Priority:** P0 = Critical (main flow, money, auth/permission, state, data loss; must PASS to release), P1 = High, P2 = Medium, P3 = Low.
 - **Labels:** keep confirmed facts, Assumptions, Risks and Recommendations apart; never present an assumption as a fact.
 

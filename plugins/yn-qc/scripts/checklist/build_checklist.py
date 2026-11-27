@@ -41,6 +41,10 @@ def main(argv):
     shown = {s: counts[s] for s in qcdata.TC_STATUSES if counts[s]}
     print(f"Wrote {argv[2]} ({len(ck.tcs)} test cases, {len(ck.reqs)} requirements)")
     print(f"Status {shown}")
+    for prio in qcdata.PRIORITIES:
+        pc = Counter(t.status for t in ck.tcs if t.priority == prio)
+        if pc:
+            print(f"{prio}: " + ", ".join(f"{s} {pc[s]}" for s in qcdata.TC_STATUSES if pc[s]))
     covered = {t.req_id for t in ck.tcs}
     missing = [r[0] for r in ck.reqs if r[0] not in covered]
     print("Reqs without TC: " + (", ".join(missing) if missing else "none"))

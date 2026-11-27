@@ -1,6 +1,6 @@
 ---
 name: ticket-review
-description: Review, improve, classify and draft QA/QC Jira tickets for bugs and improvements, used when the user asks to write, review, shorten or refine Jira titles, reproduction steps, actual/expected results, severity, references, evidence or developer comments.
+description: Use when the user asks to write, review, shorten, classify or refine a QA/QC Jira ticket (bug or improvement): titles, reproduction steps, actual/expected results, severity, references, evidence or developer comments.
 argument-hint: "[adjust title | review | shorten | log bug | log improvement | improve comment] <ticket text>"
 ---
 # QC Skill: Review & Log Jira Tickets
@@ -15,13 +15,10 @@ For whether an expected behaviour is actually confirmed (requirement gaps, open 
 
 Use these four principles as the default ticket-writing standard:
 
-1.  **Title to identify** --- The title lets developers identify the
-    affected feature and symptom immediately.
-2.  **Steps to reproduce** --- The steps allow developers to reproduce
-    the issue.
-3.  **Actual to prove** --- The actual result states what QC observed.
-4.  **Expected to define done** --- The expected result defines the
-    correct behavior after the fix.
+1. **Title to identify**: The title lets developers identify the affected feature and symptom immediately.
+2. **Steps to reproduce**: The steps allow developers to reproduce the issue.
+3. **Actual to prove**: The actual result states what QC observed.
+4. **Expected to define done**: The expected result defines the correct behavior after the fix.
 
 ## 3. Bug vs. Improvement classification
 
@@ -60,17 +57,18 @@ Do not log a Bug based on an assumption when:
 - The requirement is ambiguous or incomplete.
 - The expected behavior has not been confirmed.
 - The behavior may be intentional.
-- Different documents or stakeholders provide conflicting expectations.
+- Sources of equal standing (PRD vs user story, PRD vs design, two decisions) provide conflicting expectations.
 
-In such cases, state that requirement clarification is needed. Do not
-invent the expected behavior.
+A decision or an answered open question that overrides the PRD is a confirmed expectation: a deviation from it is a **Bug**, citing the decision (e.g. `DEC-21`).
+
+In the other cases, do not write a ticket: the question belongs in the Open Questions file (`/yn-qc:requirement-review`, ID `Q-<PREFIX>-NN`). If a ticket is still needed, cite the question ID instead of restating it. Do not invent the expected behavior.
 
 ### Classification decision rule
 
 Ask:
 
-1.  Is the expected behavior explicitly defined or previously approved?
-2.  Does the observed behavior violate that expectation?
+1. Is the expected behavior explicitly defined or previously approved?
+2. Does the observed behavior violate that expectation?
 
 If both answers are **Yes**, classify as **Bug**.
 
@@ -101,33 +99,29 @@ Examples:
 
 ### Title rules
 
--   Describe the **observable symptom**, not an unconfirmed root cause.
--   Be specific about the feature, platform, device, screen, or
-    component when relevant.
--   Prefer concise wording and remove repeated ideas.
--   Use natural, grammatically correct English.
--   Use consistent terms from the product UI and requirement documents.
--   Include device details when the issue is device-specific.
--   Avoid vague titles such as `Feature not working`, `Layout issue`, or
-    `Please check`.
--   Do not put long reproduction details or expected behavior into the
-    title.
--   For a regression, mention the incorrect current behavior; add
-    `regression` only when it helps triage.
+- Describe the **observable symptom**, not an unconfirmed root cause.
+- Be specific about the feature, platform, device, screen, or component when relevant.
+- Prefer concise wording and remove repeated ideas.
+- Use natural, grammatically correct English.
+- Use consistent terms from the product UI and requirement documents.
+- Include device details when the issue is device-specific.
+- Avoid vague titles such as `Feature not working`, `Layout issue`, or `Please check`.
+- Do not put long reproduction details or expected behavior into the title.
+- For a regression, mention the incorrect current behavior; add `regression` only when it helps triage.
 
 ### Useful symptom wording
 
--   `is not displayed`
--   `is displayed without ...`
--   `cannot be scrolled`
--   `cannot be saved`
--   `requires tapping twice`
--   `freezes when ...`
--   `remains stuck at ...`
--   `is cut off`
--   `overlaps ...`
--   `does not respond to ...`
--   `shows incorrect text`
+- `is not displayed`
+- `is displayed without ...`
+- `cannot be scrolled`
+- `cannot be saved`
+- `requires tapping twice`
+- `freezes when ...`
+- `remains stuck at ...`
+- `is cut off`
+- `overlaps ...`
+- `does not respond to ...`
+- `shows incorrect text`
 
 ## 5. Steps to Reproduce
 
@@ -141,18 +135,16 @@ Examples:
 
 ### Rules
 
--   Include only steps needed to reproduce the issue.
--   State the required user role or permission when it affects the
-    behavior.
--   Include necessary preconditions and test data.
--   Mention relevant configuration or feature settings.
--   Include platform, device, browser, and environment when relevant.
--   Use concrete data when it helps reproduce the issue, such as an
-    order containing 4--5 products.
--   Avoid irrelevant navigation details and repeated instructions.
--   Do not remove a step if it is essential to reproduce the issue.
+- Include only steps needed to reproduce the issue.
+- State the required user role or permission when it affects the behavior.
+- Include necessary preconditions and test data.
+- Mention relevant configuration or feature settings.
+- Include platform, device, browser, and environment when relevant.
+- Use concrete data when it helps reproduce the issue, such as an order containing 4–5 products.
+- Avoid irrelevant navigation details and repeated instructions.
+- Do not remove a step if it is essential to reproduce the issue.
 
-For a simple issue, 2--4 steps are usually sufficient. This is a
+For a simple issue, 2–4 steps are usually sufficient. This is a
 guideline, not a strict limit.
 
 ## 6. Actual Result
@@ -161,15 +153,13 @@ Actual Result must describe what QC directly observed.
 
 ### Rules
 
--   Be factual, concise, and specific.
--   State the visible behavior, error, missing content, or failed
-    action.
--   Do not speculate about root cause.
--   Do not describe an unverified backend state.
--   Do not claim a system message is displayed by the app if it is
-    actually an operating-system dialog.
--   Do not include placeholder text or unverified outcomes.
--   Avoid repeating all Steps to Reproduce.
+- Be factual, concise, and specific.
+- State the visible behavior, error, missing content, or failed action.
+- Do not speculate about root cause.
+- Do not describe an unverified backend state.
+- Do not claim a system message is displayed by the app if it is actually an operating-system dialog.
+- Do not include placeholder text or unverified outcomes.
+- Avoid repeating all Steps to Reproduce.
 
 *(Attribute OS dialogs correctly: "Android displays \"ShopLite isn't responding\"" — not "the app displays".)*
 
@@ -180,14 +170,12 @@ a confirmed source.
 
 ### Rules
 
--   Use the PRD, FRS, user story, acceptance criteria, approved design,
-    or confirmed existing behavior.
--   Keep it concise and testable.
--   State the required outcome, including permission or configuration
-    conditions.
--   Do not add new requirements that are not supported by the source.
--   Avoid vague wording such as `should work properly`.
--   Do not repeat the full issue description.
+- Use the PRD, FRS, user story, acceptance criteria, approved design, or confirmed existing behavior.
+- Keep it concise and testable.
+- State the required outcome, including permission or configuration conditions.
+- Do not add new requirements that are not supported by the source.
+- Avoid vague wording such as `should work properly`.
+- Do not repeat the full issue description.
 
 Preserve exact permission conditions: `can_view_seller_contact` → do not broaden to "visible to all users."
 
@@ -246,27 +234,24 @@ Comments should be short, polite, and action-oriented.
 
 ### Comment rules
 
--   State the current status or remaining issue.
--   Clearly request the next action.
--   Avoid unnecessary background already documented in the ticket.
--   Do not use ungrammatical wording such as `does not shown`.
--   Use `still` when confirming that the issue remains after a fix or
-    retest.
--   Do not claim that testing passed or failed unless the user provided
-    that result.
+- State the current status or remaining issue.
+- Clearly request the next action.
+- Avoid unnecessary background already documented in the ticket.
+- Do not use ungrammatical wording such as `does not shown`.
+- Use `still` when confirming that the issue remains after a fix or retest.
+- Do not claim that testing passed or failed unless the user provided that result.
 
 ## 12. Shortening and reviewing an existing ticket
 
 When the user provides an existing ticket for review:
 
-1.  Preserve all verified facts and important reproduction conditions.
-2.  Remove repetition and unnecessary narrative.
-3.  Improve grammar and natural technical wording.
-4.  Keep the structure appropriate to the issue.
-5.  Do not add sections the user does not need.
-6.  Flag missing information only when it materially affects
-    reproduction, classification, or expected behavior.
-7.  Return a polished, ready-to-paste version.
+1. Preserve all verified facts and important reproduction conditions.
+2. Remove repetition and unnecessary narrative.
+3. Improve grammar and natural technical wording.
+4. Keep the structure appropriate to the issue.
+5. Do not add sections the user does not need.
+6. Flag missing information only when it materially affects reproduction, classification, or expected behavior.
+7. Return a polished, ready-to-paste version.
 
 If the user asks only to review a title, revise only the title and
 briefly explain the change if useful.
@@ -400,18 +385,12 @@ If a detail is unknown:
 
 When handling QC Jira requests:
 
--   **"Adjust title"** → Return an improved title only.
--   **"Review ticket"** → Return a polished ticket and mention only
-    important corrections.
--   **"Shorten ticket"** → Remove repetition while preserving
-    reproduction-critical details.
--   **"Log bug"** → Draft a complete Bug ticket using the known facts.
--   **"Log improvement"** → Draft an Improvement with current behavior,
-    requested improvement, and testable acceptance criteria.
--   **"Bug or Improvement?"** → Explain the classification based on
-    confirmed requirements.
--   **"Improve comment"** → Return a concise developer-facing comment.
--   **Missing critical information** → Ask one focused question; do not
-    create a long questionnaire.
--   **User says not to access a link** → Do not open or investigate it;
-    work only with the supplied text.
+- **"Adjust title"** → Return an improved title only.
+- **"Review ticket"** → Return a polished ticket and mention only important corrections.
+- **"Shorten ticket"** → Remove repetition while preserving reproduction-critical details.
+- **"Log bug"** → Draft a complete Bug ticket using the known facts.
+- **"Log improvement"** → Draft an Improvement with current behavior, requested improvement, and testable acceptance criteria.
+- **"Bug or Improvement?"** → Explain the classification based on confirmed requirements.
+- **"Improve comment"** → Return a concise developer-facing comment.
+- **Missing critical information** → Ask one focused question; do not create a long questionnaire.
+- **User says not to access a link** → Do not open or investigate it; work only with the supplied text.

@@ -25,6 +25,7 @@ for s in $SKILLS; do
   [ -n "$d" ] && pass "$s: has description" || fail "$s: has description"
   case "$d" in *". "*) fail "$s: description is one sentence" ;; *) pass "$s: description is one sentence" ;; esac
   [ "${#d}" -le 300 ] && pass "$s: description <= 300 chars" || fail "$s: description <= 300 chars (${#d})"
+  case "$d" in "Use when"*) pass "$s: description starts with Use when" ;; *) fail "$s: description starts with Use when" ;; esac
   dmi=$(fm_get "$f" disable-model-invocation)
   case "$WRITERS" in
     *" $s "*) assert_eq "true" "$dmi" "$s: disable-model-invocation true (writes files)" ;;
@@ -69,6 +70,15 @@ while IFS= read -r f; do
 $f: $h"
 done < <({ find "$PLUGIN" docs -type f -not -path '*/__pycache__/*' -not -name '*.pyc'; echo README.md; } | sort)
 if [ -z "$hits" ]; then pass "no project data in plugins/yn-qc, docs/, README.md"; else fail "no project data in plugins/yn-qc, docs/, README.md:$hits"; fi
+
+# One open-question ID format, one place for requirement questions, no leftover pandoc bullets.
+assert_eq "" "$(grep -rlE 'Q-<module>|Q-<AREA>' "$PLUGIN/skills")" "open question IDs use Q-<PREFIX>-NN everywhere"
+assert_eq "" "$(grep -n 'bugs and clarifications' "$PLUGIN/skills/checklist-gen/SKILL.md")" "Issue Log holds defects, not requirement questions"
+assert_eq "0" "$(grep -cE '^(-|[0-9]+\.)   ' "$PLUGIN/skills/ticket-review/SKILL.md")" "ticket-review has plain Markdown bullets"
+for s in checklist-import ticket-review; do
+  assert_contains "$(cat "$PLUGIN/skills/$s/SKILL.md")" "equal standing" "$s: decision over PRD is not a Conflict"
+done
+assert_contains "$(cat "$PLUGIN/skills/checklist-gen/SKILL.md")" "tcs_json.py" "checklist-gen documents tcs_json.py"
 
 # Every /yn-qc:<skill> reference points to a real skill.
 bad=""

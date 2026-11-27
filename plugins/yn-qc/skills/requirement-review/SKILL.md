@@ -17,9 +17,10 @@ Manual-testing analysis before and during test design: read requirements, find w
 
 ## Sources and language
 
-- Read every document the user gives. When a decisions file or a confirmed answer exists it overrides the PRD; cite it.
+- Read every document the user gives.
+- **Precedence:** a decision, an answered open question or a later approved document overrides the PRD. The overriding item is a **Confirmed Rule** (cite it, e.g. `(DEC-21)`), not a Conflict; add a docs note that the PRD needs updating. A **Conflict** is only between sources of equal standing (PRD vs user story, PRD vs design, two decisions).
 - Cite the source of every confirmed item in brackets: `(PRD 3.1)`, `(US-2.4)`, `(DEC-12)`, `(Q-SHP-01 confirmed)`. No source → it is not confirmed.
-- Write the analysis in the user's language. Write scenarios, steps and expected results in English, because they go into the checklist unchanged.
+- Write the analysis in the user's language. Write scenarios, steps and expected results in English, because they go into the checklist unchanged. Write open questions in the language the PM reads (Vietnamese in the team's Open Questions file, see checklist-gen).
 
 ## Labels (one set, used everywhere)
 
@@ -27,15 +28,19 @@ Manual-testing analysis before and during test design: read requirements, find w
 |---|---|---|
 | **Confirmed Requirement** | Stated in a document; cite it | A `REQS` row in checklist-gen |
 | **Confirmed Rule** | Decided by the PO/BA outside the PRD (decision, answered question); cite it | The expected result of the linked scenarios |
-| **Conflict** | Two sources disagree | Open question `kind="Conflict"`, both readings with their sources in `options` |
-| **Gap** | Information needed to test is missing (rule, message, limit, UI state, design) | Open question `kind="Gap"` |
-| **Assumption** | Your reasonable guess, not confirmed | Stated as such; scenarios that rely on it end with "(assumption)". If it changes an expected result, raise it as a Gap too |
+| **Conflict** | Two sources of equal standing disagree | Open question `kind="Conflict"`, both readings with their sources in `options` |
+| **Gap** | Information needed to test is missing (rule, message, limit, UI state, design). Not the checklist status KNOWN GAP, which means behaviour documented as not built | Open question `kind="Gap"` |
+| **Assumption** | Your reasonable guess, not confirmed | Stays in the analysis, marked "(assumption)". Before a scenario that relies on it goes into the checklist, raise a Gap question and write "(pending Q-…)" instead |
 | **Risk** | Something likely to break or costly if it breaks | Drives priority |
 | **Recommendation** | Your suggestion (extra check, doc fix, UX change) | Its own section, never mixed into requirements |
 
 For every Conflict, Gap and Assumption state the **testing impact**: which scenarios are blocked or uncertain and what you would expect under each reading. Never pick a side in a Conflict yourself.
 
+**Where findings go:** a requirement question (Conflict or Gap) goes to the Open Questions file only, with ID `Q-<PREFIX>-NN` (checklist-gen). A defect found while testing goes to the Issue Log and a ticket (`/yn-qc:ticket-review`), and a ticket that depends on an open question cites its ID instead of restating the question.
+
 ## Priority
+
+This table and the Type list below are the single source for the plugin: checklist-gen, checklist-import and release-review refer here.
 
 | Priority | Checklist value | Criteria |
 |---|---|---|
@@ -48,7 +53,7 @@ Raise one level when the area changed in this release or has a history of defect
 
 ## Type and coverage angles
 
-- **Type** (one per scenario, the checklist `Type` column): `Functional`, `UI`, `Permission`, `Integration`, `Regression`, `Exploratory`.
+- **Type** (one per scenario, the checklist `Type` column): `Functional`, `UI`, `Permission`, `Integration`, `Regression`. Exploratory sessions are charters (task 5), not checklist rows.
 - **Angles** to consider for each requirement: happy path, alternate flow, negative, boundary, validation, permission, state transition, data consistency, integration failure, error handling, feature switched off.
 - Techniques: equivalence partitioning, boundary values, decision table, state transition, use case, error guessing.
 - Prefer coverage over count: one behaviour per scenario, no duplicates, test behaviour rather than UI implementation.
@@ -79,7 +84,7 @@ Output exactly the columns checklist-gen takes for `TCS`, so the rows can be pas
 - Do not invent TC IDs; checklist-gen numbers them.
 
 ### 4. Coverage review
-Map requirement → rule → scenario. When a checklist exists, start from its RTM sheet or the builder's `Reqs without TC` line. Look for requirements without a scenario, rules without a negative case, missing boundary / permission / state / integration cases, and duplicates.
+Map requirement → rule → scenario. When a checklist exists, start from its RTM sheet or the builder's `Reqs without TC` line, but that line only proves each requirement has one test case: check every business rule, validation and permission inside a requirement separately. Recommend one `REQS` row per testable rule so the RTM itself shows the gap. Look for requirements without a scenario, rules without a negative case, missing boundary / permission / state / integration cases, and duplicates.
 
 | Req ID | Covered by | Coverage | Missing |
 |---|---|---|---|

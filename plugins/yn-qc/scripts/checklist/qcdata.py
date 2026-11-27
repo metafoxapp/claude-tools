@@ -165,6 +165,10 @@ def load(path):
         if status not in TC_STATUSES:
             errors.append(f"RESULTS {tid}: bad status {status} (use {', '.join(TC_STATUSES)})")
             continue
+        if status in ("PASS", "FAIL") and "(pending Q-" in str(by_id[tid].expected):
+            errors.append(f"RESULTS {tid}: {status} while the expected result is still '(pending Q-…)'; "
+                          "use BLOCKED until the question is answered, then update the expected result")
+            continue
         by_id[tid].status, by_id[tid].tester, by_id[tid].notes = status, tester, notes
 
     raw_issues = getattr(d, "ISSUES", [])

@@ -12,7 +12,7 @@
       "description": "Cross-role foundations. queue-*: a local, file-based task queue that triages tasks into groups and implements them (in-session, in parallel worktrees, or headless).",
       "category": "productivity",
       "tags": ["yn", "role:core", "queue", "workflow"],
-      "version": "0.1.0",
+      "version": "0.1.1",
       "source": "./plugins/yn-core"
     },
     {

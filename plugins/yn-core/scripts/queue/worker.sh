@@ -42,8 +42,10 @@ fi
 
 # One worker per group at a time.
 lock="$YN_QUEUE_DIR/.worker-$group.lock"
-mkdir "$lock" 2>/dev/null || yn_die "a worker for '$group' is already running (remove $lock if stale)"
-trap 'rmdir "$lock" 2>/dev/null || true' EXIT
+# Exclusive owner file, not mkdir alone (see add.sh).
+mkdir "$lock" 2>/dev/null || true
+(set -C; echo "$$" > "$lock/owner") 2>/dev/null || yn_die "a worker for '$group' is already running (remove $lock if stale)"
+trap 'rm -f "$lock/owner"; rmdir "$lock" 2>/dev/null || true' EXIT
 
 if [ ! -d "$wt" ]; then
   git -C "$root" worktree add -B "$branch" "$wt" "$base" >/dev/null
